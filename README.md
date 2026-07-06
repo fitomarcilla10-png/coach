@@ -1,7 +1,12 @@
-# 💪 Buscador de Ejercicios
+# 🏀 Buscador de Técnicas de Básquet
 
-App en Streamlit que busca ejercicios y rutinas según un **objetivo** (ej. "perder grasa",
-"ganar masa muscular") y una **categoría muscular** (ej. piernas, brazos, cardio), en:
+App en Streamlit que busca ejercicios, tutoriales y jugadas según:
+- **Tipo de técnica**: Individual (dribbling, tiro, defensa 1v1, footwork, etc.)
+  o de Equipo (pick and roll, defensa en zona, contraataque, sistemas, etc.)
+- **Técnica puntual** elegida de una lista específica de básquet
+- **Objetivo** opcional (ej. "mejorar el porcentaje de triples", "romper una zona 2-3")
+
+Busca en:
 
 - 🌐 La web en general
 - ▶️ YouTube
