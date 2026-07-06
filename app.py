@@ -1,8 +1,8 @@
 """
-Buscador de Ejercicios
------------------------
-App de Streamlit que, a partir de un objetivo y una categoría muscular,
-busca ejercicios/rutinas en:
+Buscador de Técnicas de Básquet
+--------------------------------
+App de Streamlit que, a partir de una técnica (individual o de equipo) y
+un objetivo puntual, busca ejercicios/tutoriales/jugadas en:
   - La web en general
   - YouTube (API oficial si hay API key, si no, búsqueda alternativa)
   - Instagram (resultados públicos indexados + enlace de hashtag)
@@ -22,11 +22,38 @@ import streamlit as st
 from ddgs import DDGS
 import requests
 
-st.set_page_config(page_title="Buscador de Ejercicios", page_icon="💪", layout="wide")
+st.set_page_config(page_title="Buscador de Técnicas de Básquet", page_icon="🏀", layout="wide")
 
-CATEGORIAS = [
-    "Piernas", "Brazos", "Espalda", "Pecho", "Abdomen", "Glúteos",
-    "Cardio", "Movilidad y flexibilidad", "Cuerpo completo", "Hombros",
+# Técnicas individuales de básquet
+TECNICAS_INDIVIDUALES = [
+    "Manejo de balón (dribbling)",
+    "Tiro exterior / lanzamiento",
+    "Tiro libre",
+    "Bandeja / finalizaciones bajo el aro",
+    "Movimientos de pies (footwork)",
+    "Defensa individual (1 contra 1)",
+    "Rebote",
+    "Pase",
+    "Juego sin balón / desmarques",
+    "Cambios de dirección y velocidad (crossover, spin move)",
+    "Salto vertical y explosividad",
+    "Post bajo (juego de espaldas al aro)",
+]
+
+# Técnicas y sistemas de equipo
+TECNICAS_EQUIPO = [
+    "Pick and roll",
+    "Bloqueos directos e indirectos (screens)",
+    "Contraataque / transición ofensiva",
+    "Transición defensiva",
+    "Defensa en zona (2-3, 3-2, 1-3-1)",
+    "Defensa hombre a hombre",
+    "Ataque contra zona",
+    "Ataque posicional / motion offense",
+    "Presión a toda la cancha (press)",
+    "Rebote de equipo (ofensivo y defensivo)",
+    "Juego de bloqueo y continuación (pick and pop)",
+    "Sistemas de salida de tiempo muerto (ATO)",
 ]
 
 NIVELES = ["", "Principiante", "Intermedio", "Avanzado"]
@@ -97,19 +124,24 @@ def mostrar_lista_resultados(resultados):
 
 
 def main():
-    st.title("💪 Buscador de Ejercicios")
+    st.title("🏀 Buscador de Técnicas de Básquet")
     st.caption(
-        "Ingresá tu objetivo y la categoría muscular, y la app busca "
-        "ejercicios y rutinas en distintas fuentes."
+        "Elegí si buscás una técnica individual o de equipo, la técnica puntual "
+        "y tu objetivo, y la app busca ejercicios, tutoriales y jugadas en distintas fuentes."
     )
 
     with st.sidebar:
         st.header("Parámetros de búsqueda")
+
+        tipo = st.radio("Tipo de técnica", ["Individual", "Equipo"], horizontal=True)
+
+        opciones_tecnica = TECNICAS_INDIVIDUALES if tipo == "Individual" else TECNICAS_EQUIPO
+        tecnica = st.selectbox("Técnica", opciones_tecnica)
+
         objetivo = st.text_input(
-            "Objetivo",
-            placeholder="Ej: perder grasa, ganar masa muscular, tonificar...",
+            "Objetivo específico (opcional)",
+            placeholder="Ej: mejorar el porcentaje de triples, romper una zona 2-3...",
         )
-        categoria = st.selectbox("Categoría muscular", CATEGORIAS)
         nivel = st.selectbox("Nivel (opcional)", NIVELES)
         cantidad = st.slider("Resultados por fuente", min_value=3, max_value=10, value=5)
 
@@ -127,13 +159,12 @@ def main():
         st.info("Completá los parámetros en la barra lateral y presioná **Buscar ejercicios**.")
         return
 
-    if not objetivo.strip():
-        st.error("Por favor ingresá un objetivo.")
-        return
-
     yt_api_key = obtener_youtube_api_key(yt_key_input)
 
-    query_base = f"ejercicios de {categoria.lower()} para {objetivo.strip()}"
+    contexto_tipo = "básquet individual" if tipo == "Individual" else "básquet en equipo"
+    query_base = f"ejercicios de {tecnica.lower()} en {contexto_tipo}"
+    if objetivo.strip():
+        query_base += f" para {objetivo.strip()}"
     if nivel:
         query_base += f" nivel {nivel.lower()}"
 
@@ -177,7 +208,7 @@ def main():
         with st.spinner("Buscando en Instagram..."):
             resultados_ig = buscar_web(f"{query_base} site:instagram.com", cantidad)
         mostrar_lista_resultados(resultados_ig)
-        hashtag = categoria.lower().replace(" ", "")
+        hashtag = tecnica.split(" (")[0].lower().replace(" ", "")
         st.markdown(
             f"🔗 [Ver publicaciones con #{hashtag} directamente en Instagram]"
             f"(https://www.instagram.com/explore/tags/{hashtag}/)"
